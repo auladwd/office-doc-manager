@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: office_doc_backend
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - DB_PATH=/data/office_docs.db
+      - UPLOAD_PATH=/data/uploads
+      - MAX_FILE_SIZE=52428800
+    volumes:
+      - doc_data:/data
+    networks:
+      - office_net
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  frontend:
+    image: nginx:alpine
+    container_name: office_doc_frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - office_net
+    depends_on:
+      - backend
+
+volumes:
+  doc_data:
+    name: office_doc_data
+
+networks:
+  office_net:
+    driver: bridge

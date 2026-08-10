@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>নতুন ডকুমেন্ট যোগ — অফিস ডকুমেন্ট ম্যানেজার</title>
+  <meta name="description" content="স্ক্যান করা ডকুমেন্ট আপলোড ও সংরক্ষণ করুন">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app-wrapper">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">📂</div>
+      <h2>অফিস ডকুমেন্ট<br>ম্যানেজার</h2>
+      <span>Document Management System</span>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-title">প্রধান মেনু</div>
+      <a class="nav-item" data-page="dashboard" href="index.html">
+        <span class="nav-icon">🏠</span> ড্যাশবোর্ড
+      </a>
+      <a class="nav-item active" data-page="upload" href="upload.html">
+        <span class="nav-icon">📤</span> ডকুমেন্ট যোগ করুন
+      </a>
+      <a class="nav-item" data-page="search" href="search.html">
+        <span class="nav-icon">🔍</span> অনুসন্ধান করুন
+      </a>
+      <div class="nav-section-title">তথ্য</div>
+      <a class="nav-item" href="#">
+        <span class="nav-icon">❓</span> সাহায্য
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="server-status">
+        <div class="status-dot"></div>
+        <span>সার্ভার সক্রিয়</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-title">
+        <h1>📤 নতুন ডকুমেন্ট যোগ করুন</h1>
+        <p>স্ক্যান করা ফাইল আপলোড করুন এবং তথ্য সংরক্ষণ করুন</p>
+      </div>
+      <div class="topbar-actions">
+        <a href="index.html" class="btn btn-secondary">← ড্যাশবোর্ড</a>
+      </div>
+    </header>
+
+    <main class="page-content">
+      <div class="breadcrumb">
+        <a href="index.html">ড্যাশবোর্ড</a>
+        <span class="sep">›</span>
+        <span>নতুন ডকুমেন্ট</span>
+      </div>
+
+      <form id="upload-form" enctype="multipart/form-data">
+        <div style="display:grid;grid-template-columns:1fr 1.4fr;gap:24px;align-items:start">
+
+          <!-- Left: File Upload -->
+          <div>
+            <div class="card">
+              <div class="card-header">
+                <h2 class="card-title">📎 ফাইল আপলোড</h2>
+              </div>
+
+              <div class="drop-zone" id="drop-zone">
+                <input type="file" name="file" id="file-input"
+                       accept=".pdf,.jpg,.jpeg,.png,.gif,.webp,.tiff,.tif">
+                <div class="drop-icon">📁</div>
+                <h4>ফাইল টেনে আনুন অথবা ক্লিক করুন</h4>
+                <p>PDF, JPG, PNG, TIFF সর্বোচ্চ 50MB</p>
+              </div>
+              <div id="file-preview-wrap"></div>
+
+              <div class="divider"></div>
+
+              <!-- Tips -->
+              <div style="background:rgba(79,70,229,0.08);border:1px solid var(--primary-glow);border-radius:10px;padding:14px">
+                <div style="font-size:13px;font-weight:600;color:var(--primary-light);margin-bottom:8px">💡 পরামর্শ</div>
+                <ul style="font-size:12px;color:var(--text-muted);list-style:none;display:flex;flex-direction:column;gap:6px">
+                  <li>✦ স্পষ্ট স্ক্যান করুন (300 DPI বা বেশি)</li>
+                  <li>✦ বিষয় এবং স্মারক নম্বর অবশ্যই পূরণ করুন</li>
+                  <li>✦ সঠিক তারিখ ব্যবহার করুন যাতে পরে সহজে খুঁজে পাওয়া যায়</li>
+                  <li>✦ ট্যাগ ব্যবহার করুন দ্রুত অনুসন্ধানের জন্য</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Metadata Form -->
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">📝 ডকুমেন্টের তথ্য</h2>
+              <span style="font-size:12px;color:var(--text-faint)"><span style="color:var(--danger)">*</span> আবশ্যক</span>
+            </div>
+
+            <!-- Subject -->
+            <div class="form-group">
+              <label class="form-label" for="subject">বিষয় / শিরোনাম<span class="required">*</span></label>
+              <input type="text" class="form-control" id="subject" name="subject"
+                     placeholder="চিঠির বিষয় লিখুন..." required autocomplete="off">
+            </div>
+
+            <!-- Memo + Date -->
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="memo_no">স্মারক নম্বর</label>
+                <input type="text" class="form-control" id="memo_no" name="memo_no"
+                       placeholder="যেমন: ৫৩.০২.০০০০.০০১.১১.০০১.২৫" autocomplete="off">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="doc_date">চিঠির তারিখ</label>
+                <input type="date" class="form-control" id="doc_date" name="doc_date">
+              </div>
+            </div>
+
+            <!-- Category -->
+            <div class="form-group">
+              <label class="form-label" for="category">ক্যাটাগরি</label>
+              <select class="form-control" id="category" name="category"></select>
+            </div>
+
+            <!-- From + To -->
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="from_party">প্রেরক (From)</label>
+                <input type="text" class="form-control" id="from_party" name="from_party"
+                       placeholder="যেমন: প্রধান কার্যালয়" autocomplete="off">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="to_party">প্রাপক (To)</label>
+                <input type="text" class="form-control" id="to_party" name="to_party"
+                       placeholder="যেমন: আঞ্চলিক অফিস" autocomplete="off">
+              </div>
+            </div>
+
+            <!-- Tags -->
+            <div class="form-group">
+              <label class="form-label" for="tag-input-field">ট্যাগ (Enter বা কমা দিয়ে যোগ করুন)</label>
+              <div class="tag-input-wrap" id="tag-wrap">
+                <input type="text" class="tag-input" id="tag-input-field" placeholder="ট্যাগ লিখুন...">
+              </div>
+              <input type="hidden" id="tags-hidden" name="tags">
+            </div>
+
+            <!-- Notes -->
+            <div class="form-group">
+              <label class="form-label" for="notes">নোট / মন্তব্য</label>
+              <textarea class="form-control" id="notes" name="notes"
+                        placeholder="অতিরিক্ত তথ্য বা মন্তব্য লিখুন..."></textarea>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Submit -->
+            <div style="display:flex;gap:12px;justify-content:flex-end">
+              <button type="reset" class="btn btn-secondary" id="reset-btn">↺ পরিষ্কার</button>
+              <button type="submit" class="btn btn-primary btn-lg" id="submit-btn">
+                <span id="submit-icon">💾</span>
+                <span id="submit-text">ডকুমেন্ট সংরক্ষণ করুন</span>
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </form>
+    </main>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script src="js/app.js"></script>
+<script>
+// ── Init ────────────────────────────────────────────────────
+initDropZone('drop-zone', 'file-input', 'file-preview-wrap');
+initTagInput('tag-wrap', 'tag-input-field', 'tags-hidden');
+loadCategories('category', '');
+
+// Set default date to today
+document.getElementById('doc_date').value = new Date().toISOString().split('T')[0];
+
+// Override category select to include required categories
+(async () => {
+  const select = document.getElementById('category');
+  try {
+    const cats = await apiFetch('/categories');
+    select.innerHTML = cats.map((c, i) =>
+      `<option value="${c}" ${i === 0 ? 'selected' : ''}>${c}</option>`
+    ).join('');
+  } catch {}
+})();
+
+// ── Form submit ─────────────────────────────────────────────
+document.getElementById('upload-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const form = e.target;
+  const submitBtn = document.getElementById('submit-btn');
+  const submitText = document.getElementById('submit-text');
+  const submitIcon = document.getElementById('submit-icon');
+
+  submitBtn.disabled = true;
+  submitIcon.textContent = '⏳';
+  submitText.textContent = 'সংরক্ষণ হচ্ছে...';
+
+  try {
+    const formData = new FormData(form);
+    const res = await fetch('/api/documents', {
+      method: 'POST',
+      body: formData
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'আপলোড ব্যর্থ হয়েছে');
+
+    toast('ডকুমেন্ট সফলভাবে সংরক্ষিত হয়েছে!', 'success');
+
+    setTimeout(() => {
+      window.location.href = `view.html?id=${data.id}`;
+    }, 1000);
+  } catch (err) {
+    toast('ত্রুটি: ' + err.message, 'error');
+    submitBtn.disabled = false;
+    submitIcon.textContent = '💾';
+    submitText.textContent = 'ডকুমেন্ট সংরক্ষণ করুন';
+  }
+});
+
+document.getElementById('reset-btn').addEventListener('click', () => {
+  document.getElementById('file-preview-wrap').innerHTML = '';
+});
+</script>
+</body>
+</html>

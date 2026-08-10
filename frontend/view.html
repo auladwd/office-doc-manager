@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ডকুমেন্ট বিস্তারিত — অফিস ডকুমেন্ট ম্যানেজার</title>
+  <meta name="description" content="ডকুমেন্টের বিস্তারিত তথ্য ও ফাইল প্রিভিউ">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app-wrapper">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">📂</div>
+      <h2>অফিস ডকুমেন্ট<br>ম্যানেজার</h2>
+      <span>Document Management System</span>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-title">প্রধান মেনু</div>
+      <a class="nav-item" href="index.html"><span class="nav-icon">🏠</span> ড্যাশবোর্ড</a>
+      <a class="nav-item" href="upload.html"><span class="nav-icon">📤</span> ডকুমেন্ট যোগ করুন</a>
+      <a class="nav-item" href="search.html"><span class="nav-icon">🔍</span> অনুসন্ধান করুন</a>
+      <div class="nav-section-title">তথ্য</div>
+      <a class="nav-item" href="#"><span class="nav-icon">❓</span> সাহায্য</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="server-status">
+        <div class="status-dot"></div>
+        <span>সার্ভার সক্রিয়</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-title">
+        <h1 id="page-title">ডকুমেন্ট বিস্তারিত</h1>
+        <p id="page-subtitle">লোড হচ্ছে...</p>
+      </div>
+      <div class="topbar-actions" id="topbar-actions">
+        <a href="search.html" class="btn btn-secondary">← ফিরে যান</a>
+      </div>
+    </header>
+
+    <main class="page-content">
+      <div class="breadcrumb">
+        <a href="index.html">ড্যাশবোর্ড</a>
+        <span class="sep">›</span>
+        <a href="search.html">অনুসন্ধান</a>
+        <span class="sep">›</span>
+        <span id="bc-subject">ডকুমেন্ট</span>
+      </div>
+
+      <!-- View Mode -->
+      <div id="view-mode">
+        <div class="loading-overlay"><div class="spinner"></div></div>
+      </div>
+
+      <!-- Edit Mode -->
+      <div id="edit-mode" style="display:none">
+        <form id="edit-form" enctype="multipart/form-data">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start">
+
+            <!-- Left: File replace -->
+            <div class="card">
+              <div class="card-header">
+                <h2 class="card-title">📎 ফাইল (ঐচ্ছিক প্রতিস্থাপন)</h2>
+              </div>
+              <div id="current-file-preview" style="margin-bottom:16px"></div>
+              <div class="drop-zone" id="edit-drop-zone">
+                <input type="file" name="file" id="edit-file-input"
+                       accept=".pdf,.jpg,.jpeg,.png,.gif,.webp,.tiff,.tif">
+                <div class="drop-icon">🔄</div>
+                <h4>নতুন ফাইল আপলোড করুন</h4>
+                <p>বর্তমান ফাইল রাখতে চাইলে খালি রাখুন</p>
+              </div>
+              <div id="edit-file-preview"></div>
+            </div>
+
+            <!-- Right: Metadata -->
+            <div class="card">
+              <div class="card-header">
+                <h2 class="card-title">✏️ তথ্য সম্পাদনা</h2>
+              </div>
+              <div class="form-group">
+                <label class="form-label">বিষয় / শিরোনাম <span class="required">*</span></label>
+                <input type="text" class="form-control" name="subject" id="e-subject" required>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">স্মারক নম্বর</label>
+                  <input type="text" class="form-control" name="memo_no" id="e-memo">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">চিঠির তারিখ</label>
+                  <input type="date" class="form-control" name="doc_date" id="e-doc-date">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">ক্যাটাগরি</label>
+                <select class="form-control" name="category" id="e-category"></select>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">প্রেরক</label>
+                  <input type="text" class="form-control" name="from_party" id="e-from">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">প্রাপক</label>
+                  <input type="text" class="form-control" name="to_party" id="e-to">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">ট্যাগ</label>
+                <div class="tag-input-wrap" id="e-tag-wrap">
+                  <input type="text" class="tag-input" id="e-tag-input" placeholder="ট্যাগ লিখুন...">
+                </div>
+                <input type="hidden" id="e-tags-hidden" name="tags">
+              </div>
+              <div class="form-group">
+                <label class="form-label">নোট</label>
+                <textarea class="form-control" name="notes" id="e-notes"></textarea>
+              </div>
+              <div class="divider"></div>
+              <div style="display:flex;gap:12px;justify-content:flex-end">
+                <button type="button" class="btn btn-secondary" id="cancel-edit">বাতিল</button>
+                <button type="submit" class="btn btn-primary" id="save-edit-btn">
+                  <span id="save-icon">💾</span> পরিবর্তন সংরক্ষণ করুন
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </form>
+      </div>
+    </main>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script src="js/app.js"></script>
+<script>
+let docId = null;
+let currentDoc = null;
+let editTagHelper = null;
+
+// ── Read URL ──────────────────────────────────────────────
+const urlParams = new URLSearchParams(window.location.search);
+docId = urlParams.get('id');
+const startEdit = urlParams.get('edit') === '1';
+
+if (!docId) {
+  document.getElementById('view-mode').innerHTML = `
+    <div class="empty-state">
+      <div class="empty-icon">⚠️</div>
+      <div class="empty-title">ডকুমেন্ট ID পাওয়া যায়নি</div>
+      <a href="search.html" class="btn btn-primary">← ফিরে যান</a>
+    </div>`;
+}
+
+// ── Load document ─────────────────────────────────────────
+async function loadDoc() {
+  try {
+    currentDoc = await apiFetch(`/documents/${docId}`);
+
+    document.title = `${currentDoc.subject} — অফিস ডকুমেন্ট ম্যানেজার`;
+    document.getElementById('page-title').textContent = currentDoc.subject;
+    document.getElementById('page-subtitle').textContent =
+      `স্মারক: ${currentDoc.memo_no || 'নেই'} · ${catBadge(currentDoc.category)}`;
+    document.getElementById('bc-subject').textContent = currentDoc.subject.substring(0, 40) + (currentDoc.subject.length > 40 ? '...' : '');
+
+    // Topbar actions
+    document.getElementById('topbar-actions').innerHTML = `
+      <a href="search.html" class="btn btn-secondary">← ফিরে যান</a>
+      ${currentDoc.file_name ? `<a href="/files/${encodeURIComponent(currentDoc.file_name)}?download=1" class="btn btn-success" download>⬇️ ডাউনলোড</a>` : ''}
+      <button class="btn btn-secondary" id="btn-edit">✏️ সম্পাদনা</button>
+      <button class="btn btn-danger" id="btn-delete">🗑️ মুছুন</button>`;
+
+    document.getElementById('btn-edit').onclick = () => showEdit();
+    document.getElementById('btn-delete').onclick = () =>
+      deleteDocument(docId, () => { window.location.href = 'search.html'; });
+
+    renderView();
+    if (startEdit) showEdit();
+  } catch (err) {
+    document.getElementById('view-mode').innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">⚠️</div>
+        <div class="empty-title">ডকুমেন্ট পাওয়া যায়নি</div>
+        <div class="empty-desc">${err.message}</div>
+        <a href="search.html" class="btn btn-primary">← ফিরে যান</a>
+      </div>`;
+  }
+}
+
+// ── Render view mode ──────────────────────────────────────
+function renderView() {
+  const doc = currentDoc;
+  const fileUrl = doc.file_name ? `/files/${encodeURIComponent(doc.file_name)}` : null;
+
+  document.getElementById('view-mode').innerHTML = `
+    <div style="display:grid;grid-template-columns:340px 1fr;gap:24px;align-items:start">
+
+      <!-- Meta -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">📋 ডকুমেন্টের তথ্য</h2>
+          ${fileBadgeHTML(doc.file_type)}
+        </div>
+        <div class="doc-meta-list">
+          <div class="doc-meta-item">
+            <label>বিষয়</label>
+            <div class="meta-value" style="font-size:15px;font-weight:600">${escHtml(doc.subject)}</div>
+          </div>
+          <div class="doc-meta-item">
+            <label>স্মারক নম্বর</label>
+            <div class="meta-value" style="font-family:'Inter',sans-serif;color:var(--primary-light)">${doc.memo_no ? escHtml(doc.memo_no) : '<span style="color:var(--text-faint)">নেই</span>'}</div>
+          </div>
+          <div class="doc-meta-item">
+            <label>চিঠির তারিখ</label>
+            <div class="meta-value">${formatDate(doc.doc_date)}</div>
+          </div>
+          <div class="doc-meta-item">
+            <label>ক্যাটাগরি</label>
+            <div class="meta-value">${catBadge(doc.category)}</div>
+          </div>
+          <div class="doc-meta-item">
+            <label>প্রেরক</label>
+            <div class="meta-value">${doc.from_party ? escHtml(doc.from_party) : '<span style="color:var(--text-faint)">নেই</span>'}</div>
+          </div>
+          <div class="doc-meta-item">
+            <label>প্রাপক</label>
+            <div class="meta-value">${doc.to_party ? escHtml(doc.to_party) : '<span style="color:var(--text-faint)">নেই</span>'}</div>
+          </div>
+          ${doc.notes ? `<div class="doc-meta-item">
+            <label>নোট</label>
+            <div class="meta-value" style="font-size:13px;line-height:1.6">${escHtml(doc.notes)}</div>
+          </div>` : ''}
+          ${doc.tags && doc.tags.length ? `<div class="doc-meta-item">
+            <label>ট্যাগ</label>
+            <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:4px">
+              ${doc.tags.map(t => `<span class="tag-chip">${escHtml(t)}</span>`).join('')}
+            </div>
+          </div>` : ''}
+          <div class="divider" style="margin:12px 0"></div>
+          <div class="doc-meta-item">
+            <label>ফাইলের আকার</label>
+            <div class="meta-value">${formatSize(doc.file_size)}</div>
+          </div>
+          <div class="doc-meta-item">
+            <label>আপলোডের তারিখ</label>
+            <div class="meta-value" style="font-size:13px">${formatDateTime(doc.created_at)}</div>
+          </div>
+          ${doc.updated_at !== doc.created_at ? `<div class="doc-meta-item">
+            <label>সর্বশেষ আপডেট</label>
+            <div class="meta-value" style="font-size:13px">${formatDateTime(doc.updated_at)}</div>
+          </div>` : ''}
+        </div>
+      </div>
+
+      <!-- File Preview -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">👁️ ফাইল প্রিভিউ</h2>
+          ${fileUrl ? `<a href="${fileUrl}?download=1" class="btn btn-success btn-sm" download>⬇️ ডাউনলোড</a>` : ''}
+        </div>
+        ${fileUrl ? (doc.file_type === 'pdf'
+          ? `<div class="doc-preview-frame"><iframe src="${fileUrl}" title="${escHtml(doc.subject)}"></iframe></div>`
+          : `<div class="doc-preview-frame" style="min-height:400px"><img src="${fileUrl}" alt="${escHtml(doc.subject)}" style="max-width:100%;object-fit:contain"></div>`
+        ) : `<div class="empty-state" style="padding:60px"><div class="empty-icon">📎</div><div class="empty-title">কোনো ফাইল সংযুক্ত নেই</div></div>`}
+      </div>
+
+    </div>`;
+}
+
+function escHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Edit mode ────────────────────────────────────────────
+async function showEdit() {
+  document.getElementById('view-mode').style.display = 'none';
+  document.getElementById('edit-mode').style.display = 'block';
+
+  await loadCategories('e-category', currentDoc.category);
+  editTagHelper = initTagInput('e-tag-wrap', 'e-tag-input', 'e-tags-hidden');
+  editTagHelper.setTags(currentDoc.tags || []);
+
+  document.getElementById('e-subject').value = currentDoc.subject || '';
+  document.getElementById('e-memo').value = currentDoc.memo_no || '';
+  document.getElementById('e-doc-date').value = currentDoc.doc_date || '';
+  document.getElementById('e-from').value = currentDoc.from_party || '';
+  document.getElementById('e-to').value = currentDoc.to_party || '';
+  document.getElementById('e-notes').value = currentDoc.notes || '';
+
+  // Show current file
+  if (currentDoc.file_name) {
+    document.getElementById('current-file-preview').innerHTML = `
+      <div class="file-preview">
+        <span class="file-preview-icon">${currentDoc.file_type === 'pdf' ? '📄' : '🖼️'}</span>
+        <div class="file-preview-info">
+          <div class="file-preview-name">বর্তমান: ${escHtml(currentDoc.file_name)}</div>
+          <div class="file-preview-size">${formatSize(currentDoc.file_size)}</div>
+        </div>
+      </div>`;
+  }
+
+  initDropZone('edit-drop-zone', 'edit-file-input', 'edit-file-preview');
+}
+
+document.getElementById('cancel-edit').addEventListener('click', () => {
+  document.getElementById('edit-mode').style.display = 'none';
+  document.getElementById('view-mode').style.display = 'block';
+});
+
+// ── Edit form submit ──────────────────────────────────────
+document.getElementById('edit-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('save-edit-btn');
+  const icon = document.getElementById('save-icon');
+  btn.disabled = true;
+  icon.textContent = '⏳';
+
+  try {
+    const formData = new FormData(e.target);
+    const res = await fetch(`/api/documents/${docId}`, {
+      method: 'PUT',
+      body: formData
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+
+    currentDoc = data;
+    toast('ডকুমেন্ট সফলভাবে আপডেট হয়েছে!', 'success');
+    document.getElementById('edit-mode').style.display = 'none';
+    document.getElementById('view-mode').style.display = 'block';
+    renderView();
+  } catch (err) {
+    toast('ত্রুটি: ' + err.message, 'error');
+  } finally {
+    btn.disabled = false;
+    icon.textContent = '💾';
+  }
+});
+
+// ── Init ─────────────────────────────────────────────────
+if (docId) loadDoc();
+</script>
+</body>
+</html>

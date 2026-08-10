@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>অনুসন্ধান — অফিস ডকুমেন্ট ম্যানেজার</title>
+  <meta name="description" content="স্মারক নম্বর, তারিখ, বিষয় ও নাম দিয়ে ডকুমেন্ট খুঁজুন">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app-wrapper">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">📂</div>
+      <h2>অফিস ডকুমেন্ট<br>ম্যানেজার</h2>
+      <span>Document Management System</span>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-title">প্রধান মেনু</div>
+      <a class="nav-item" data-page="dashboard" href="index.html">
+        <span class="nav-icon">🏠</span> ড্যাশবোর্ড
+      </a>
+      <a class="nav-item" data-page="upload" href="upload.html">
+        <span class="nav-icon">📤</span> ডকুমেন্ট যোগ করুন
+      </a>
+      <a class="nav-item active" data-page="search" href="search.html">
+        <span class="nav-icon">🔍</span> অনুসন্ধান করুন
+      </a>
+      <div class="nav-section-title">তথ্য</div>
+      <a class="nav-item" href="#">
+        <span class="nav-icon">❓</span> সাহায্য
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="server-status">
+        <div class="status-dot"></div>
+        <span>সার্ভার সক্রিয়</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-title">
+        <h1>🔍 ডকুমেন্ট অনুসন্ধান</h1>
+        <p>স্মারক নম্বর, বিষয়, নাম বা তারিখ দিয়ে খুঁজুন</p>
+      </div>
+      <div class="topbar-actions">
+        <a href="upload.html" class="btn btn-primary">+ নতুন ডকুমেন্ট</a>
+      </div>
+    </header>
+
+    <main class="page-content">
+
+      <!-- Main Search Bar -->
+      <div class="card" style="margin-bottom:20px;padding:20px">
+        <div class="search-bar" style="padding:12px 18px">
+          <span class="search-icon" style="font-size:20px">🔍</span>
+          <input type="text" id="main-search" placeholder="বিষয়, স্মারক নম্বর, প্রেরক, প্রাপক দিয়ে অনুসন্ধান করুন..."
+                 style="font-size:16px" autocomplete="off">
+          <button class="btn btn-primary" id="search-btn">অনুসন্ধান</button>
+        </div>
+      </div>
+
+      <!-- Filter Panel -->
+      <div class="filter-panel">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <h3 style="font-size:14px;font-weight:700;color:var(--text)">🔧 উন্নত ফিল্টার</h3>
+          <button class="btn btn-secondary btn-sm" id="toggle-filters">ফিল্টার দেখান/লুকান</button>
+        </div>
+        <div id="filter-body" class="filter-grid" style="display:grid">
+          <div class="form-group" style="margin-bottom:0">
+            <label class="form-label">স্মারক নম্বর</label>
+            <input type="text" class="form-control" id="f-memo" placeholder="স্মারক নম্বর..." autocomplete="off">
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label class="form-label">ক্যাটাগরি</label>
+            <select class="form-control" id="f-category">
+              <option value="">সব ক্যাটাগরি</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label class="form-label">প্রেরক</label>
+            <input type="text" class="form-control" id="f-from" placeholder="প্রেরকের নাম..." autocomplete="off">
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label class="form-label">প্রাপক</label>
+            <input type="text" class="form-control" id="f-to" placeholder="প্রাপকের নাম..." autocomplete="off">
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label class="form-label">তারিখ (শুরু)</label>
+            <input type="date" class="form-control" id="f-date-from">
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label class="form-label">তারিখ (শেষ)</label>
+            <input type="date" class="form-control" id="f-date-to">
+          </div>
+          <div class="form-group" style="margin-bottom:0;align-self:flex-end">
+            <button class="btn btn-secondary" id="clear-filters" style="width:100%">✕ ফিল্টার মুছুন</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Results -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">📋 ফলাফল</h2>
+          <div style="display:flex;align-items:center;gap:12px">
+            <span id="result-count" style="font-size:13px;color:var(--text-muted)"></span>
+            <select class="form-control" id="sort-select" style="width:auto;padding:6px 28px 6px 10px;font-size:13px">
+              <option value="created_at-DESC">আপলোড তারিখ (নতুন প্রথম)</option>
+              <option value="created_at-ASC">আপলোড তারিখ (পুরনো প্রথম)</option>
+              <option value="doc_date-DESC">চিঠির তারিখ (নতুন প্রথম)</option>
+              <option value="doc_date-ASC">চিঠির তারিখ (পুরনো প্রথম)</option>
+              <option value="memo_no-ASC">স্মারক নম্বর (ক্রমানুসারে)</option>
+              <option value="subject-ASC">বিষয় (A-Z)</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="results-area">
+          <div class="loading-overlay"><div class="spinner"></div></div>
+        </div>
+
+        <div id="pagination-wrap" class="pagination"></div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script src="js/app.js"></script>
+<script>
+let currentPage = 1;
+const LIMIT = 15;
+
+// ── Build query params ────────────────────────────────────
+function buildParams(page = 1) {
+  const params = new URLSearchParams();
+  const q = document.getElementById('main-search').value.trim();
+  const memo = document.getElementById('f-memo').value.trim();
+  const cat = document.getElementById('f-category').value;
+  const from = document.getElementById('f-from').value.trim();
+  const to = document.getElementById('f-to').value.trim();
+  const dateFrom = document.getElementById('f-date-from').value;
+  const dateTo = document.getElementById('f-date-to').value;
+  const sortVal = document.getElementById('sort-select').value.split('-');
+
+  if (q) params.set('q', q);
+  if (memo) params.set('memo_no', memo);
+  if (cat) params.set('category', cat);
+  if (from) params.set('from_party', from);
+  if (to) params.set('to_party', to);
+  if (dateFrom) params.set('date_from', dateFrom);
+  if (dateTo) params.set('date_to', dateTo);
+  params.set('sort', sortVal[0]);
+  params.set('order', sortVal[1]);
+  params.set('page', page);
+  params.set('limit', LIMIT);
+  return params;
+}
+
+// ── Render results ────────────────────────────────────────
+async function doSearch(page = 1) {
+  currentPage = page;
+  const area = document.getElementById('results-area');
+  area.innerHTML = '<div class="loading-overlay"><div class="spinner"></div></div>';
+
+  try {
+    const params = buildParams(page);
+    const data = await apiFetch(`/documents?${params.toString()}`);
+
+    document.getElementById('result-count').textContent =
+      `মোট ${data.total.toLocaleString('bn-BD')} টি ডকুমেন্ট পাওয়া গেছে`;
+
+    if (data.documents.length === 0) {
+      area.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">🔍</div>
+          <div class="empty-title">কোনো ডকুমেন্ট পাওয়া যায়নি</div>
+          <div class="empty-desc">অনুসন্ধান পরিবর্তন করে আবার চেষ্টা করুন</div>
+        </div>`;
+    } else {
+      area.innerHTML = `
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>ফাইল</th>
+                <th>বিষয় / শিরোনাম</th>
+                <th>স্মারক নম্বর</th>
+                <th>ক্যাটাগরি</th>
+                <th>প্রেরক</th>
+                <th>তারিখ</th>
+                <th>কার্যক্রম</th>
+              </tr>
+            </thead>
+            <tbody id="results-tbody"></tbody>
+          </table>
+        </div>`;
+
+      const tbody = document.getElementById('results-tbody');
+      data.documents.forEach(doc => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${fileBadgeHTML(doc.file_type)}</td>
+          <td class="td-subject">
+            <span class="td-subject-text">${escapeHtml(doc.subject)}</span>
+            ${doc.tags && doc.tags.length ? `<div style="margin-top:4px">${doc.tags.slice(0,3).map(t=>`<span class="badge badge-gray" style="font-size:10px;margin-right:3px">${escapeHtml(t)}</span>`).join('')}</div>` : ''}
+          </td>
+          <td class="td-memo">${doc.memo_no ? escapeHtml(doc.memo_no) : '<span style="color:var(--text-faint)">—</span>'}</td>
+          <td>${catBadge(doc.category)}</td>
+          <td class="td-from">${doc.from_party ? escapeHtml(doc.from_party) : '—'}</td>
+          <td style="white-space:nowrap;font-size:13px">${formatDate(doc.doc_date || doc.created_at)}</td>
+          <td class="td-actions">
+            <div style="display:flex;gap:6px">
+              <a href="view.html?id=${doc.id}" class="btn btn-sm btn-secondary" title="দেখুন">👁️</a>
+              <a href="view.html?id=${doc.id}&edit=1" class="btn btn-sm btn-secondary" title="সম্পাদনা">✏️</a>
+              <button class="btn btn-sm btn-danger" onclick="deleteDocument(${doc.id}, doSearch)" title="মুছুন">🗑️</button>
+            </div>
+          </td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Pagination
+    renderPagination(data.page, data.pages);
+
+  } catch (err) {
+    area.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><div class="empty-title">ত্রুটি</div><div class="empty-desc">${err.message}</div></div>`;
+  }
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Pagination ────────────────────────────────────────────
+function renderPagination(page, pages) {
+  const wrap = document.getElementById('pagination-wrap');
+  if (pages <= 1) { wrap.innerHTML = ''; return; }
+
+  let html = '';
+  html += `<button class="page-btn" onclick="doSearch(${page-1})" ${page===1?'disabled':''}>‹</button>`;
+
+  for (let i = 1; i <= pages; i++) {
+    if (i === 1 || i === pages || (i >= page-2 && i <= page+2)) {
+      html += `<button class="page-btn ${i===page?'active':''}" onclick="doSearch(${i})">${i}</button>`;
+    } else if (i === page-3 || i === page+3) {
+      html += `<span style="color:var(--text-faint);padding:0 4px">…</span>`;
+    }
+  }
+
+  html += `<button class="page-btn" onclick="doSearch(${page+1})" ${page===pages?'disabled':''}>›</button>`;
+  wrap.innerHTML = html;
+}
+
+// ── Event Listeners ───────────────────────────────────────
+document.getElementById('search-btn').addEventListener('click', () => doSearch(1));
+document.getElementById('main-search').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doSearch(1);
+});
+['f-memo','f-from','f-to'].forEach(id => {
+  document.getElementById(id).addEventListener('keydown', e => {
+    if (e.key === 'Enter') doSearch(1);
+  });
+});
+document.getElementById('f-category').addEventListener('change', () => doSearch(1));
+document.getElementById('f-date-from').addEventListener('change', () => doSearch(1));
+document.getElementById('f-date-to').addEventListener('change', () => doSearch(1));
+document.getElementById('sort-select').addEventListener('change', () => doSearch(currentPage));
+
+document.getElementById('clear-filters').addEventListener('click', () => {
+  ['f-memo','f-from','f-to','f-date-from','f-date-to'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('f-category').value = '';
+  document.getElementById('main-search').value = '';
+  doSearch(1);
+});
+
+document.getElementById('toggle-filters').addEventListener('click', () => {
+  const body = document.getElementById('filter-body');
+  body.style.display = body.style.display === 'none' ? 'grid' : 'none';
+});
+
+// ── Init ──────────────────────────────────────────────────
+loadCategories('f-category');
+
+// Check for URL params (from dashboard quick search)
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.get('q')) {
+  document.getElementById('main-search').value = urlParams.get('q');
+}
+
+doSearch(1);
+</script>
+</body>
+</html>

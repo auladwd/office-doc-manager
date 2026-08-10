@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ড্যাশবোর্ড — অফিস ডকুমেন্ট ম্যানেজার</title>
+  <meta name="description" content="অফিসের স্ক্যান করা ডকুমেন্ট ব্যবস্থাপনা সিস্টেম">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app-wrapper">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">📂</div>
+      <h2>অফিস ডকুমেন্ট<br>ম্যানেজার</h2>
+      <span>Document Management System</span>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-title">প্রধান মেনু</div>
+      <a class="nav-item active" data-page="dashboard" href="index.html">
+        <span class="nav-icon">🏠</span> ড্যাশবোর্ড
+      </a>
+      <a class="nav-item" data-page="upload" href="upload.html">
+        <span class="nav-icon">📤</span> ডকুমেন্ট যোগ করুন
+      </a>
+      <a class="nav-item" data-page="search" href="search.html">
+        <span class="nav-icon">🔍</span> অনুসন্ধান করুন
+      </a>
+      <div class="nav-section-title">তথ্য</div>
+      <a class="nav-item" href="#" id="nav-help">
+        <span class="nav-icon">❓</span> সাহায্য
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="server-status">
+        <div class="status-dot" id="status-dot"></div>
+        <span id="status-text">সংযুক্ত হচ্ছে...</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-title">
+        <h1>ড্যাশবোর্ড</h1>
+        <p id="current-date">আজকের তারিখ লোড হচ্ছে...</p>
+      </div>
+      <div class="topbar-actions">
+        <div class="quick-search search-bar" style="max-width:280px">
+          <span class="search-icon">🔍</span>
+          <input type="text" placeholder="দ্রুত অনুসন্ধান..." id="quick-search-input" autocomplete="off">
+        </div>
+        <a href="upload.html" class="btn btn-primary">
+          <span>+</span> নতুন ডকুমেন্ট
+        </a>
+      </div>
+    </header>
+
+    <main class="page-content">
+
+      <!-- Stats -->
+      <div class="stats-grid" id="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon purple">📁</div>
+          <div class="stat-info">
+            <h3 id="stat-total">—</h3>
+            <p>মোট ডকুমেন্ট</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green">📅</div>
+          <div class="stat-info">
+            <h3 id="stat-today">—</h3>
+            <p>আজকের আপলোড</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon orange">🗂️</div>
+          <div class="stat-info">
+            <h3 id="stat-cats">—</h3>
+            <p>ক্যাটাগরি</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon blue">🔍</div>
+          <div class="stat-info">
+            <h3><a href="search.html" style="color:inherit;text-decoration:none">সার্চ</a></h3>
+            <p>ডকুমেন্ট খুঁজুন</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Grid -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+
+        <!-- Recent Documents -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">📋 সাম্প্রতিক ডকুমেন্ট</h2>
+            <a href="search.html" class="btn btn-secondary btn-sm">সব দেখুন</a>
+          </div>
+          <div id="recent-list">
+            <div class="loading-overlay"><div class="spinner"></div></div>
+          </div>
+        </div>
+
+        <!-- Category breakdown -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">📊 ক্যাটাগরি অনুযায়ী</h2>
+          </div>
+          <div id="category-chart">
+            <div class="loading-overlay"><div class="spinner"></div></div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script src="js/app.js"></script>
+<script>
+// ── Server status check ───────────────────────────────────
+async function checkStatus() {
+  const dot = document.getElementById('status-dot');
+  const text = document.getElementById('status-text');
+  try {
+    await apiFetch('/health');
+    dot.style.background = 'var(--success)';
+    text.textContent = 'সার্ভার সক্রিয়';
+  } catch {
+    dot.style.background = 'var(--danger)';
+    text.textContent = 'সংযোগ ব্যর্থ';
+  }
+}
+
+// ── Load dashboard data ───────────────────────────────────
+async function loadDashboard() {
+  try {
+    const data = await apiFetch('/stats');
+
+    document.getElementById('stat-total').textContent = data.total.toLocaleString('bn-BD');
+    document.getElementById('stat-today').textContent = data.today.toLocaleString('bn-BD');
+    document.getElementById('stat-cats').textContent = (data.byCategory || []).length.toLocaleString('bn-BD');
+
+    // Recent documents
+    const recentEl = document.getElementById('recent-list');
+    if (!data.recent || data.recent.length === 0) {
+      recentEl.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">📭</div>
+          <div class="empty-title">কোনো ডকুমেন্ট নেই</div>
+          <div class="empty-desc">প্রথম ডকুমেন্ট যোগ করুন</div>
+          <a href="upload.html" class="btn btn-primary">+ ডকুমেন্ট যোগ করুন</a>
+        </div>`;
+    } else {
+      recentEl.innerHTML = `
+        <div style="display:flex;flex-direction:column;gap:10px">
+          ${data.recent.map(doc => `
+            <a href="view.html?id=${doc.id}" style="text-decoration:none;color:inherit">
+              <div style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--bg3);border-radius:10px;border:1px solid var(--border);transition:border-color 0.2s" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--border)'">
+                <div style="font-size:24px">${doc.file_type === 'pdf' ? '📄' : doc.file_type === 'image' ? '🖼️' : '📎'}</div>
+                <div style="flex:1;min-width:0">
+                  <div style="font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${doc.subject}</div>
+                  <div style="font-size:12px;color:var(--text-muted);margin-top:2px">
+                    ${doc.memo_no ? `স্মারক: ${doc.memo_no} · ` : ''}${catBadge(doc.category)}
+                  </div>
+                </div>
+                <div style="font-size:11px;color:var(--text-faint);white-space:nowrap">${formatDate(doc.doc_date || doc.created_at)}</div>
+              </div>
+            </a>`).join('')}
+        </div>`;
+    }
+
+    // Category chart
+    const catEl = document.getElementById('category-chart');
+    if (!data.byCategory || data.byCategory.length === 0) {
+      catEl.innerHTML = '<div class="empty-state" style="padding:30px"><div class="empty-icon">📊</div><div class="empty-title">কোনো ক্যাটাগরি নেই</div></div>';
+    } else {
+      const max = data.byCategory[0].count;
+      catEl.innerHTML = `<div class="category-list">
+        ${data.byCategory.map(c => `
+          <div class="category-item">
+            <div class="category-name">${c.category}</div>
+            <div class="category-bar-wrap">
+              <div class="category-bar" style="width:${Math.round((c.count/max)*100)}%"></div>
+            </div>
+            <div class="category-count">${c.count}</div>
+          </div>`).join('')}
+      </div>`;
+    }
+  } catch (err) {
+    toast('ড্যাশবোর্ড লোড করতে সমস্যা হয়েছে: ' + err.message, 'error');
+  }
+}
+
+// ── Quick search ──────────────────────────────────────────
+document.getElementById('quick-search-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.target.value.trim()) {
+    window.location.href = `search.html?q=${encodeURIComponent(e.target.value.trim())}`;
+  }
+});
+
+// ── Date ─────────────────────────────────────────────────
+document.getElementById('current-date').textContent =
+  new Date().toLocaleDateString('bn-BD', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+
+// ── Init ─────────────────────────────────────────────────
+checkStatus();
+loadDashboard();
+setInterval(checkStatus, 30000);
+</script>
+</body>
+</html>
